@@ -4,4 +4,6 @@ _site
 .jekyll-metadata
 .ruby-version
 Gemfile.lock
+package-lock.json
+node_modules
 vendor

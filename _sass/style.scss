@@ -1,16 +1,18 @@
-html {
-  background: #FFFFFF;
-}
 body {
-  background: #FFFFFF;
-  color: #525252;
+  color: #d2d8de;
+}
+header {
+  background: linear-gradient(180deg, rgba(0,0,0, 1) 0, rgba(0,0,0, 0) 100%);
+  span:before {
+    color: #696f75;
+    content: "/";
+    display: inline-flex;
+    font-weight: 500;
+    padding-left: 0.6em;
+    padding-right: 0.6em;
+  } 
 }
 
-
-a, a:visited {
-  text-decoration: none;
-  color: inherit;
-}
-a.current {
-  color: green;
+.intro-section {
+  max-width: 96ch;
 }

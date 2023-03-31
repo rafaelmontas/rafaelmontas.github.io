@@ -16,3 +16,9 @@ header {
 .intro-section {
   max-width: 96ch;
 }
+.posts-post p:last-child {
+  font-size: 16px;
+  @media (min-width: 768px) {
+    font-size: 18px;
+  }
+}

@@ -8,3 +8,5 @@ postcss:
   cache: false
 permalink: /:categories/:title/
 excerpt_separator: <!--more-->
+baseurl: /
+url: https://rafaelmontas.github.io

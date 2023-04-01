@@ -11,6 +11,10 @@
   </head>
   <body class="bg-black min-h-screen">
     {% include header.html %}
-    {{ content }}
+    <main class="flex flex-col">
+      <section class="wrapper-section flex flex-col mx-4 md:mx-20 my-24 md:my-32">
+        {{ content }}
+      </section>
+    </main>
   </body>
 </html>

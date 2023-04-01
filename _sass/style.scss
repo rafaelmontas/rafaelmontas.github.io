@@ -13,12 +13,18 @@ header {
   } 
 }
 
-.intro-section {
+.wrapper-section {
   max-width: 96ch;
 }
 .posts-post p:last-child {
   font-size: 16px;
   @media (min-width: 768px) {
     font-size: 18px;
+  }
+}
+.post-header p:last-child {
+  font-size: 1.2rem;
+  @media (min-width: 768px) {
+    font-size: 1.7rem;
   }
 }

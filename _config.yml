@@ -7,3 +7,4 @@ plugins:
 postcss:
   cache: false
 permalink: /:categories/:title/
+excerpt_separator: <!--more-->

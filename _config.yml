@@ -1,3 +1,5 @@
+url: https://rafaelmontas.github.io
+baseurl: ''
 theme: null
 plugins:
   - jekyll-feed
@@ -8,5 +10,3 @@ postcss:
   cache: false
 permalink: /:categories/:title/
 excerpt_separator: <!--more-->
-baseurl: /
-url: https://rafaelmontas.github.io

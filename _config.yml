@@ -1,5 +1,5 @@
 url: https://rafaelmontas.github.io
-baseurl: ''
+baseurl: rafaelmontas.github.io
 theme: null
 plugins:
   - jekyll-feed

@@ -1,3 +1,5 @@
+title: "Blog | Rafael"
+description: "Pasionate Software Developer at Corotos and creator of Hauzzy. Here I share notes I take along the way."
 url: 'https://rafaelmontas.com'
 repository: rafaelmontas/rafaelmontas.github.io
 theme: null
@@ -9,3 +11,5 @@ plugins:
 postcss:
   cache: false
 permalink: /:categories/:title/
+feed:
+  path: /feed.atom

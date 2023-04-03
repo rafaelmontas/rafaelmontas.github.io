@@ -2,14 +2,12 @@
 layout: post
 title: "Implementing Data Structures in Ruby: Arrays"
 slug: arrays from scratch in ruby
+excerpt: "Let's strengthen our understanding of Arrays by implementing them from scratch
+in Ruby. Building a solid foundation in Data Structures and Algorithms."
 external_site: dev.to
 external_url: https://dev.to/rmontas/implementing-data-structures-in-ruby-arrays-3oed
 ---
 
-<!--more-->
-Let's strengthen our understanding of Arrays by implementing them from scratch
-in Ruby. Building a solid foundation in Data Structures and Algorithms.
-<!--more-->
 
 Just recently, I transitioned careers to become a Software Developer using mainly Ruby and Ruby on Rails and wanted to strengthen my understanding of Data Structures & Algorithms, which I am sure would allow me to become a better programmer. So with this in mind, I decided to read [The Well-Grounded Rubyist, Third Edition](https://www.manning.com/books/the-well-grounded-rubyist-third-edition) to better understand the basics of the Ruby language and [A Common-Sense Guide to Data Structures and Algorithms, Second Edition](https://pragprog.com/titles/jwdsal2/a-common-sense-guide-to-data-structures-and-algorithms-second-edition/) to start implementing algorithms with Space and Time Complexity in mind.
 

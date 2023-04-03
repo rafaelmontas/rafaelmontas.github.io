@@ -10,9 +10,9 @@ layout: default
     </time>
   </div>
   <h3 class="text-white font-semibold text-2xl md:text-5xl">{{ page.title }}</h3>
-  {{ page.excerpt }}
+  <p class="text-xl md:text-3xl">{{ page.excerpt }}</p>
 </div>
 <hr class="w-2/4"/>
 <div class="post-content mt-14 mb-14 text-lg max-w-prose">
-  {{ content | remove_first: page.excerpt }}
+  {{ content }}
 </div>

@@ -6,6 +6,7 @@ excerpt: "Let's strengthen our understanding of Arrays by implementing them from
 in Ruby. Building a solid foundation in Data Structures and Algorithms."
 external_site: dev.to
 external_url: https://dev.to/rmontas/implementing-data-structures-in-ruby-arrays-3oed
+canonical_url: 'https://dev.to/rmontas/implementing-data-structures-in-ruby-arrays-3oed'
 ---
 
 

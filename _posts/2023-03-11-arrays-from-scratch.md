@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "Implementing Data Structures in Ruby: Arrays"
+header: "Implementing Data Structures in Ruby: Arrays"
 slug: arrays from scratch in ruby
 excerpt: "Let's strengthen our understanding of Arrays by implementing them from scratch
 in Ruby. Building a solid foundation in Data Structures and Algorithms."

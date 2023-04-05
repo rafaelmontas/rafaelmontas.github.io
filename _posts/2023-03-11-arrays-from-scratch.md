@@ -355,7 +355,8 @@ class MyArray
   end
 end
 ```
+
 ## Sources of Inspiration
-[Data Structures From Scratch: Array](https://dev.to/torianne02/data-structures-from-scratch-array-24d5)
-[Exploring Data Structures From a Ruby Background, Pt. 1: Arrays](https://dev.to/isalevine/exploring-data-structures-from-a-ruby-background-pt-1-arrays-5bma)
+[Data Structures From Scratch: Array](https://dev.to/torianne02/data-structures-from-scratch-array-24d5)  
+[Exploring Data Structures From a Ruby Background, Pt. 1: Arrays](https://dev.to/isalevine/exploring-data-structures-from-a-ruby-background-pt-1-arrays-5bma)  
 [Ruby's `Set` source code](https://github.com/ruby/set/blob/master/lib/set.rb)

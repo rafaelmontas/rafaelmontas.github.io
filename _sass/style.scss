@@ -15,4 +15,32 @@ header {
 
 .wrapper-section {
   max-width: 96ch;
+  .post-content {
+    h2 {
+      font-size: 1.5em;
+      color: #fff;
+      font-weight: 700;
+      line-height: 1.25;
+      margin: 1.25rem 0;
+    }
+    p {
+      font-size: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+    a {
+      color: #fff;
+      font-weight: 600;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    code:not(pre.highlight > code)  {
+      background: #2A2B2C;
+      border: 1px solid #424546;
+      color: #fff;
+      border-radius: 2px;
+      max-width: 100%;
+      font-size: 80%;
+      padding: 0.1em 0.25em;
+    }
+  }
 }

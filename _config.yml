@@ -15,3 +15,7 @@ permalink: /:categories/:title/
 twitter:
   username: rmontas
   card: 'summary_large_image'
+markdown: kramdown
+highlighter: rouge
+kramdown:
+  input: GFM

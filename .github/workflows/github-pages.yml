@@ -24,7 +24,7 @@ jobs:
           enable_cache: true
           jekyll_env: production
       - name: Upload artifact
-        uses: actions/upload-pages-artifact
+        uses: actions/upload-pages-artifact@v1
         with:
           name: github-pages
   deploy:

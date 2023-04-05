@@ -12,3 +12,6 @@ plugins:
 postcss:
   cache: false
 permalink: /:categories/:title/
+twitter:
+  username: rmontas
+  card: 'summary_large_image'

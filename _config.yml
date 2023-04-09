@@ -4,7 +4,7 @@ url: 'https://www.rafaelmontas.com'
 baseurl: ''
 repository: rafaelmontas/rafaelmontas.github.io
 theme: null
-timezone: UTC/GMT -4 hours
+timezone: America/Santo_Domingo
 google_analytics: G-M8XVM0T71Y
 plugins:
   - jekyll-feed

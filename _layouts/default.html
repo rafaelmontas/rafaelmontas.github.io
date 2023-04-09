@@ -9,6 +9,9 @@
     <link rel="icon" type="image/png" href="/assets/images/favicon.png">
     {% feed_meta %}
     {% seo title=false %}
+    {% if jekyll.environment == 'production' %}
+      {% include analytics.html %}
+    {% endif %}
   </head>
   <body class="bg-black min-h-screen">
     {% include header.html %}

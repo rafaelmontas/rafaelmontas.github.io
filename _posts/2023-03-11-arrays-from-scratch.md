@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: redirect
 title: "Implementing Data Structures in Ruby: Arrays"
 header: "Implementing Data Structures in Ruby: Arrays"
 slug: arrays from scratch in ruby

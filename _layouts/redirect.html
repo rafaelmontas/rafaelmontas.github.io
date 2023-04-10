@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <title>{{ site.title }}</title>
+    <link rel="canonical" href="{{ page.external_url }}">
+    <script>location="{{ page.external_url }}"</script>
+    <meta http-equiv="refresh" content="0; url={{ page.external_url }}">
+    <meta name="robots" content="noindex">
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="icon" type="image/png" href="/assets/images/favicon.png">
+  </head>
+  <body class="bg-black min-h-screen">
+    <h1>Redirecting&hellip;</h1>
+    <a href="{{ page.external_url }}">Click here if you are not redirected.</a>
+    <div>
+      {{ content }}
+    </div>
+  </body>
+</html>

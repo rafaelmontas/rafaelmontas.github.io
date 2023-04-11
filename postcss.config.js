@@ -1,7 +1,7 @@
 module.exports = {
   plugins: [
     require('postcss-import')({
-      path: ["_sass"]
+      path: ["assets/css"]
     }),
     require('tailwindcss'),
     require('postcss-nested'),

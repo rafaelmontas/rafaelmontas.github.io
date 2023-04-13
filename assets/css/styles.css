@@ -1,8 +1,8 @@
 ---
 ---
-@import "reset";
-@import "main";
-@import "highlighter";
+@import "reset.scss";
+@import "main.scss";
+@import "highlighter.scss";
 @import "tailwindcss/base";
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";

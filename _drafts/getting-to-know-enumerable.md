@@ -116,3 +116,134 @@ end
 
 ## Methods for Searching and Filtering
 
+It's common to want to filter a collection of objects based on a selection criteria. We'll
+look at several facilities for filtering and searching collections. All of them
+expect a code block, where you difine your selection criteria (your tests for inclusion
+or exclusion).
+
+**`#find (aliased as #detect)`**
+
+Returns the first element in the collection for which the code block returns `true`. If no
+code block is provided, it returns an instance of `Enumerator`.
+
+```ruby
+def find
+  return self.enum_for(__method__) unless block_given?
+  self.each { |element| return element if yield(element) }
+
+  return nil
+end
+
+alias :detect :find
+```
+
+**`#find_all (aliased as #select)`**
+
+Returns an `Array` containing all the elements of the original collection that matched
+the criteria in the code block. If no matching elements are found, it returns an empty
+collection. Also, if no code block is provided, it returns an instance of `Enumerator`.
+
+```ruby
+def find_all
+  return self.enum_for(__method__) unless block_given?
+
+  matches = []
+  self.each do |element|
+    matches << element if yield(element)
+  end
+
+  return matches
+end
+
+alias :select :find_all
+```
+
+**`#find_index`**
+
+Returns the index of the first element that meets the specified criteria, or `nil` if
+no element matches the criteria. It returns an instance of `Enumerator`if neither a
+code block nor an argument are provided.
+
+For this method to work, make sure your `#each` implementation returns an
+`Enumerator` when no code block is provided. This will allow us to chain methods, as
+in `.each.with_index`.
+
+```ruby
+def find_index(value=nil)
+  return self.enum_for(__method__) unless value || block_given?
+
+  self.each.with_index do |element, index|
+    if value
+      return index if element == value
+    else
+      return index if yield(element)
+    end
+  end
+  
+  return nil
+end
+```
+
+**`#group_by`**
+
+When given a code block, it returns a `Hash`. For each unique value returned by the
+block, the results hash gets a key; the value for that key is an `Array` of all the
+elements of the collection for which the block returned that value. If no code block is
+given, it returns an instance of `Enumerator`.
+
+```ruby
+def group_by
+  return self.enum_for(__method__) unless block_given?
+
+  groups = Hash.new([])
+  self.each do |element|
+    groups[yield(element)] << element
+  end
+
+  return groups
+end
+```
+
+**`#map (aliased as #collect)`**
+
+Returns an `Array` when given a block. Returns and `Enumerator` otherwise. The returned
+array is always the same size as the original collection. Its elements are the result
+of calling the code block on each element in the original object.
+
+```ruby
+def map
+  return self.enum_for(__method__) unless block_given?
+
+  collection = []
+  self.each { |element| collection << yield(element) }
+
+  return collection
+end
+
+alias :collect :map
+
+# (1..5).map { |value| value * value }
+# => [1, 4, 9, 16, 25]
+```
+
+**`#inject (aliased as #reduce)`**
+
+Works by initializing an accumulator object, performs a calculation on each iteration
+and reset the accumulator to the result of that calculation. Returns the return value
+from the last block call.
+
+```ruby
+def inject(operand=0)
+  accumulator = operand
+  self.each do |element|
+    accumulator = yield(accumulator, element)
+  end
+
+  return accumulator
+end
+
+alias :reduce :inject
+
+# (1..5).inject { |sum, value| sum + value }
+# => 15
+```

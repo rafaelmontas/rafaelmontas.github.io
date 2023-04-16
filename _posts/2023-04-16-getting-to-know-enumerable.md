@@ -77,6 +77,7 @@ def any?
 
   return false
 end
+
 # => (1..5).any? { |n| n > 3 }
 # => true
 ```

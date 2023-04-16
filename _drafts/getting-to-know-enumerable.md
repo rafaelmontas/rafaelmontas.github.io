@@ -9,8 +9,8 @@ If it has an #each method it probably mixes in the Enumerable Module."
 
 
 `Enumerable` is a module in the Ruby standard library. Classes that include it have
-to define an instance method called `each`, which yields the elements of your
-collection in succession. Once the iterator is defined and `Enumerable` is mixed in, the class
+to define an instance method called `each`, which yields the elements of the collection
+in succession. Once the iterator is defined and `Enumerable` is mixed in, the class
 now supports all sorts of collection-related behavior. Also, keep in mind, that
 although `Enumerable` adds common functionality to each of the collection classes
 that includes it, each of them actually overrides some of the methods.
@@ -25,15 +25,15 @@ class MyArray
 end
 ```
 
-You can query which methods `Enumerable` provides by sending it the message
-`instance_methods` and passing the `false` argument so you get only methods
+You can query which methods `Enumerable` provides by sending the message
+`instance_methods` to it and passing the `false` argument so you get only methods
 defined in the module itself.
 
 ```console
 irb(main):001:0> Enumerable.instance_methods(false)
 ```
 
-In order to understand `Enumerable` at a deeper level, let's write a few its
+In order to understand `Enumerable` at a deeper level, let's write a few of its
 methods while trying to cover as many operations as posible.
 
 ## Methods for Querying
@@ -52,10 +52,13 @@ def include?(value)
   self.each { |item| return true if item == value }
   return false
 end
+
+# (1..5).include?(2)
+# => true
 ```
 
 This works just fine for `Arrays` but if we were querying a `Hash`, we would need to
-adjust for the fact that when you iterate through a `hash` with `each` it yields back
+adjust for the fact that when you iterate through a `Hash` with `each` it yields back
 one key/value pair at a time (two-element arrays). The `Hash#include?` method checks
 for key inclusion
 
@@ -73,13 +76,13 @@ def any?
 
   return false
 end
-# => arr.any? { |n| n > 3 }
+# => (1..5).any? { |n| n > 3 }
 # => true
 ```
 
 **`#count`**
 
-Return the count of elements based on a criteria passed as argument or a block, if
+Returns the count of elements based on a criteria passed as argument or a block, if
 given.
 
 ```ruby
@@ -98,11 +101,14 @@ def count(value=nil)
   warn("warning: given block not used") if value && block_given?
   return counter
 end
+
+# (1..5).count { |value| value > 3 }
+# => 2
 ```
 
 **`#tally`**
 
-Counts the ocurrences of each element. Returning a `hash` with the collection's elements
+Counts the ocurrences of each element. Returning a `Hash` with the collection's elements
 as keys and corresponding counts as values.
 
 ```ruby
@@ -112,6 +118,9 @@ def tally
 
   return tally
 end
+
+# [1, 2, 2, 2, 3, 3, 4].tally
+# => {1=>1, 2=>3, 3=>2, 4=>1}
 ```
 
 ## Methods for Searching and Filtering
@@ -121,7 +130,7 @@ look at several facilities for filtering and searching collections. All of them
 expect a code block, where you difine your selection criteria (your tests for inclusion
 or exclusion).
 
-**`#find (aliased as #detect)`**
+**`#find` aliased as `#detect`**
 
 Returns the first element in the collection for which the code block returns `true`. If no
 code block is provided, it returns an instance of `Enumerator`.
@@ -135,9 +144,12 @@ def find
 end
 
 alias :detect :find
+
+# (1..5).find {|value| value > 2}
+# => 3
 ```
 
-**`#find_all (aliased as #select)`**
+**`#find_all` aliased as `#select`**
 
 Returns an `Array` containing all the elements of the original collection that matched
 the criteria in the code block. If no matching elements are found, it returns an empty
@@ -156,13 +168,16 @@ def find_all
 end
 
 alias :select :find_all
+
+# (1..9).find_all {|value| value % 3 == 0 }
+# => [3, 6, 9]
 ```
 
 **`#find_index`**
 
 Returns the index of the first element that meets the specified criteria, or `nil` if
-no element matches the criteria. It returns an instance of `Enumerator`if neither a
-code block nor an argument are provided.
+no element matches the criteria. It returns an instance of `Enumerator` if neither a code
+block nor an argument are provided.
 
 For this method to work, make sure your `#each` implementation returns an
 `Enumerator` when no code block is provided. This will allow us to chain methods, as
@@ -182,6 +197,9 @@ def find_index(value=nil)
   
   return nil
 end
+
+# (1..5).find_index(2)
+# => 1
 ```
 
 **`#group_by`**
@@ -202,9 +220,13 @@ def group_by
 
   return groups
 end
+
+# colors = [{group: 'primary'}, {group: 'secondary'}, {group: 'primary'}]
+# colors.group_by { |value| value[:group] }
+# => {"primary"=>[{:group=>"primary"}, {:group=>"primary"}], "secondary"=>[{:group=>"secondary"}]}
 ```
 
-**`#map (aliased as #collect)`**
+**`#map` aliased as `#collect`**
 
 Returns an `Array` when given a block. Returns and `Enumerator` otherwise. The returned
 array is always the same size as the original collection. Its elements are the result
@@ -226,7 +248,7 @@ alias :collect :map
 # => [1, 4, 9, 16, 25]
 ```
 
-**`#inject (aliased as #reduce)`**
+**`#inject` aliased as `#reduce`**
 
 Works by initializing an accumulator object, performs a calculation on each iteration
 and reset the accumulator to the result of that calculation. Returns the return value
@@ -247,3 +269,7 @@ alias :reduce :inject
 # (1..5).inject { |sum, value| sum + value }
 # => 15
 ```
+
+We've gotten to know `Enumerable` in a more detailed way and it will better
+positioned us to handle everyday programming as we’ll use the enumeration-related
+facilities of the language virtually every time we write a Ruby program.

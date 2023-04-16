@@ -5,6 +5,7 @@ header: "Getting to know  Ruby's Enumerable Module"
 slug: "getting to know  ruby enumerable module"
 excerpt: "Collection classes in Ruby typically include (or extend) Enumerable.
 If it has an #each method it probably mixes in the Enumerable Module."
+image: /asstes/images/getting-to-know-rubys-enumerable-module.png
 ---
 
 

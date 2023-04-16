@@ -3,6 +3,11 @@ description: "Pasionate Software Developer at Corotos and creator of Hauzzy. Her
 url: 'https://www.rafaelmontas.com'
 baseurl: ''
 repository: rafaelmontas/rafaelmontas.github.io
+defaults:
+  - scope:
+      path: ""
+    values:
+      image: /assets/images/default-card.png
 theme: null
 timezone: America/Santo_Domingo
 google_analytics: G-M8XVM0T71Y

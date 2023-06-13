@@ -12,7 +12,7 @@ image: /assets/images/method-lookup-path.png
 
 Objects, in Ruby, don't "have" methods but, rather, find them by searching its
 class and that class's superclass, and onward, up to the `Object` or even `BasicObject`
-class, or in a module tha has been mixed into any of those classes.
+class, or in a module that has been mixed into any of those classes.
 
 Most of the time, you’ll use the dot operator "`.`" (There's also `send`, `__send__`, and
 `public_send` alternatives) to "prompt" the object to go find a method
@@ -21,7 +21,7 @@ Most of the time, you’ll use the dot operator "`.`" (There's also `send`, `__s
 ## Demonstration of basic module inclusion and inheritance
 
 Let's write some basic classes, modules, and methods so we can easily visualize the logic
-and mechanincs of method lookup and hopefully better understand how objects find methods.
+and mechanics of method lookup and hopefully better understand how objects find methods.
 
 ```ruby
 module M
@@ -93,18 +93,18 @@ account.calculate_interest
 ```
 
 Also, a class could mix in two or more modules and more than one implements
-the same method beign searched for. In that case, the most-recently mixed-in
+the same method being searched for. In that case, the most-recently mixed-in
 module is searched first.
 
 ## How `prepend` and `extend` work
 
-Eventhough `include` is the most common way of mixing in modules into a
-class, Ruby provides two other ways to achive that but with some differences.
+Even though `include` is the most common way of mixing in modules into a
+class, Ruby provides two other ways to achieve that but with some differences.
 
 **`prepend`**
 
 If you `prepend` a module to a class, the object looks in that module first,
-before it looks in the class. it basically inserts the module at the begining of
+before it looks in the class. it basically inserts the module at the beginning of
 the ancestors chain.
 
 You can see the difference between `include` and `prepend` reflected when calling
@@ -136,9 +136,9 @@ of instance methods.
 
 Had we used `extend` rather than `prepend` in our example above, the `LookHereFirst`
 module would not have been inserted into `Person`'s ancestors chain. Instead, Ruby
-inserts the module in the ancestors chain of `Person`'s *singlenton class*.
+inserts the module in the ancestors chain of `Person`'s *singleton class*.
 
-## Where do singlenton methods fit in the method-lookup path?
+## Where do singleton methods fit in the method-lookup path?
 
 An object's singleton methods live in the object *singleton class* and so an object
 can call instance methods from its class and from its singleton class. It has both.

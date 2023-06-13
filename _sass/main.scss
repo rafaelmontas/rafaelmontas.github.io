@@ -26,6 +26,20 @@ header {
     p {
       font-size: 1.25rem;
       margin-bottom: 1.25rem;
+      img {
+        margin: 2rem 0;
+      }
+    }
+    p:has(> img) {
+      background-color: #151d25;
+      margin: 2rem 0;
+      padding: 30px;
+      display: flex;
+      justify-content: center;
+      border-radius: 6px;
+    }
+    em {
+      font-style: italic;
     }
     a {
       color: #fff;
@@ -41,6 +55,12 @@ header {
       max-width: 100%;
       font-size: 80%;
       padding: 0.1em 0.25em;
+    }
+    blockquote {
+      background: #131313;
+      border-left: 3px solid #454545;
+      margin: 1.5em 10px 1.5em 0;
+      padding: 1.25em 10px 0.1em 10px;
     }
   }
 }

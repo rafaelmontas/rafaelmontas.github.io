@@ -38,6 +38,11 @@ header {
       justify-content: center;
       border-radius: 6px;
     }
+    p:has(> img.rails-world) {
+      background-color: inherit;
+      padding-top: 0;
+      padding-bottom: 0;
+    }
     em {
       font-style: italic;
     }

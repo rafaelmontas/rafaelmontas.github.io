@@ -3,8 +3,8 @@ layout: post
 title: "Deploy a Rails app to a Docker Swarm cluster on Hetzner"
 header: "Deploy a Rails app to a Docker Swarm cluster on Hetzner"
 slug: "deploy-rails-docker-swarm-hetzner"
-excerpt: "Recently, I've been working on a SaaS platform that I'm building using Ruby on Rails. I decided to use Hetzner for hosting and Docker Swarm to handle the containers orchestration in production."
-image: /assets/images/method-lookup-path.png
+excerpt: "Recently, I've been working on a project using Ruby on Rails and decided to use Hetzner for hosting and Docker Swarm to handle the container orchestration in production."
+image: /assets/images/docker-swarm-hetzner/swarm-hetzner.jpg
 ---
 
 In this post, I'll show you how to set up a Docker Swarm cluster on Hetzner and deploy
@@ -18,7 +18,7 @@ $ rails new docker-swarm -a propshaft -d postgresql -c tailwind
 $ rails db:prepare
 ```
 
-You should now be able to run the app locally with `rails s` and see the welcome page.
+You should now be able to run the app locally with `bin/dev` and see the welcome page.
 
 ![Rails welcome page](/assets/images/docker-swarm-hetzner/rails-welcome.png)
 
@@ -87,13 +87,19 @@ ID         NAME          STATUS    IPV4             IPV6                      PR
 ```
 
 Optionally, you can go on and add a new entry to the config file on your local device. With this you will be
-able to simply use `ssh <unique-name>` instead of `ssh <username>@<IP-address>` to connect to the server:
+able to simply use `ssh <unique-name>` instead of `ssh <username>@<IP-address>` to connect to the servers:
 
 ```bash
 $ nano ~/.ssh/config
 
 Host swarm-manager
   HostName 37.27.34.249
+  User root
+  IdentityFile ~/.ssh/id_rsa_personal
+  PreferredAuthentications publickey
+
+Host db-worker
+  HostName 95.217.128.149
   User root
   IdentityFile ~/.ssh/id_rsa_personal
   PreferredAuthentications publickey
@@ -108,4 +114,190 @@ $ docker --version
 ```
 
 ## Adding firewalls to both servers
+
+Now, let's create our firewalls for the server and database. We will create the firewall for the web server
+first, add inbound rules, and then apply it to the server.
+
+```bash
+# Create the firewall
+$ hcloud firewall create --name app-firewall
+> Firewall 1245331 created
+
+# Add inbound rules
+$ hcloud firewall add-rule 1245331 --direction in --port 22 --protocol tcp --source-ips 0.0.0.0/0
+$ hcloud firewall add-rule 1245331 --direction in --port 80 --protocol tcp --source-ips 0.0.0.0/0
+
+# Docker related ports for nodes communication and overlay networks
+$ hcloud firewall add-rule 1245331 --direction in --port 2377 --protocol tcp --source-ips 0.0.0.0/0
+$ hcloud firewall add-rule 1245331 --direction in --port 7946 --protocol tcp --source-ips 0.0.0.0/0
+$ hcloud firewall add-rule 1245331 --direction in --port 4789 --protocol udp --source-ips 0.0.0.0/0
+```
+
+For the database server, we will add the same rules but also allow traffic for the database port instead of
+the web server port:
+
+```bash
+# Create the firewall
+$ hcloud firewall create --name db-firewall
+> Firewall 1247136 created
+
+# Add inbound rules
+$ hcloud firewall add-rule 1247136 --direction in --port 22 --protocol tcp --source-ips 0.0.0.0/0
+$ hcloud firewall add-rule 1247136 --direction in --port 5432 --protocol tcp --source-ips 0.0.0.0/0
+
+# Docker related ports for nodes communication and overlay networks
+$ hcloud firewall add-rule 1247136 --direction in --port 2377 --protocol tcp --source-ips 0.0.0.0/0
+$ hcloud firewall add-rule 1247136 --direction in --port 7946 --protocol tcp --source-ips 0.0.0.0/0
+$ hcloud firewall add-rule 1247136 --direction in --port 4789 --protocol udp --source-ips 0.0.0.0/0
+```
+
+Now we can apply the firewalls to the web server and database:
+
+```bash
+$ hcloud firewall apply-to-resource 1245331 --server 43107995 --type server
+$ hcloud firewall apply-to-resource 1247136 --server 43108038 --type server
+```
+
+## Setting up the Docker Swarm cluster
+
+We will start by initializing Swarm mode on the manager node and then join the worker node to the cluster.
+
+```bash
+$ ssh swarm-manager
+$ docker swarm init --advertise-addr 37.27.34.249
+
+> Swarm initialized: current node (xyivupj1vs8j972fb789t3n08) is now a manager.
+> To add a worker to this swarm, run the following command:
+  docker swarm join --token SWMTKN-1-2z9r0ypycjcxesjr7vlyf4nd248xp7h83dy7127miwoyydszct-a04m5zkf3f6hd3ueeoj513tby 37.27.34.249:2377
+```
+
+Before joining the worker node to the cluster, let's assigna label to the manager node so we can control
+where the app container will be deployed:
+
+```bash
+$ docker node update --label-add type=app xyivupj1vs8j972fb789t3n08
+```
+
+Now, we can join the worker node to the cluster:
+
+```bash
+$ ssh db-worker
+
+$ docker swarm join --token SWMTKN-1-2z9r0ypycjcxesjr7vlyf4nd248xp7h83dy7127miwoyydszct-a04m5zkf3f6hd3ueeoj513tby 37.27.34.249:2377
+
+> This node joined a swarm as a worker.
+```
+
+Assign a label to the worker node as well by going back to the manager node, listing the nodes so we can
+get the worker node ID and then assign the label to the worker node:
+
+```bash
+$ docker node ls
+$ docker node update --label-add type=database wqb9dnx6otanxoc529qfwblvq
+```
+
+## Deploying the Rails app to the cluster
+
+We will use a `docker-stack.yml` file to define the services and deploy the app to the cluster. Create the file
+in the root of the Rails app and add the following content:
+
+```yaml
+version: '3.7'
+
+services:
+  web:
+    image: rafaelmontas/demo-app:prod
+    depends_on:
+      - database
+    ports:
+      - 80:3000
+    environment:
+      - RAILS_ENV=production
+      - RAILS_LOG_TO_STDOUT="true"
+      - SECRET_KEY_BASE=b88d584663a98347075b76bf088a783f7c679e80f793519c2548674eaf0964d70db93b8167e44b1ecc767f02900a3aefb797bfe74c36943711153a408ef9554b
+      - RAILS_SERVE_STATIC_FILES="true"
+      - DATABASE_HOST=database
+      - POSTGRES_USER=docker_swarm
+      - POSTGRES_PASSWORD=production-secure-password
+    deploy:
+      placement:
+        constraints:
+          - node.labels.type == app
+
+  database:
+    image: postgres:15
+    environment:
+      - RAILS_ENV=production
+      - RAILS_LOG_TO_STDOUT="true"
+      - SECRET_KEY_BASE=b88d584663a98347075b76bf088a783f7c679e80f793519c2548674eaf0964d70db93b8167e44b1ecc767f02900a3aefb797bfe74c36943711153a408ef9554b
+      - RAILS_SERVE_STATIC_FILES="true"
+      - DATABASE_HOST=database
+      - POSTGRES_USER=docker_swarm
+      - POSTGRES_PASSWORD=production-secure-password
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    deploy:
+      placement:
+        constraints:
+          - node.labels.type == database
+
+volumes:
+  db_data:
+```
+
+> Starting from `Rails 7.1` ssl is enforced by default, so we need to set the
+`config.force_ssl = false` in the `config/environments/production.rb` file.
+
+Also, in `config/database.yml` we need to set the `host`, the `username`, and `password` to the
+values we set in the `docker-stack.yml` file.
+
+```ruby
+production:
+  <<: *default
+  database: docker_swarm_production
+  host: database
+  username: docker_swarm
+  password: <%= ENV["POSTGRES_PASSWORD"] %>
+```
+
+### Build x86 images on m1 mac:
+
+```bash
+$ docker buildx build --platform=linux/amd64 -f Dockerfile -t rafaelmontas/demo-app:prod .
+```
+
+### Upload image to registry:
+
+```bash
+$ docker push rafaelmontas/demo-app:prod
+```
+
+Now, we are ready to deploy the app to the cluster by creating a Docker Context for the manager node, switching to it, and then
+running the `docker stack deploy` command:
+
+```bash
+$ docker context create demo-app --docker host=ssh://37.27.34.249
+$ docker context use demo-app
+$ docker stack deploy -c docker-stack.yml demo-app
+```
+
+Now, you should be able to access the Rails app by visiting the IP address of the manager node in your browser:
+
+![Rails index page](/assets/images/docker-swarm-hetzner/index-page.png)
+
+To make shure the database is working, create a new post and verify that it persists after modifying the
+page's header. Then, rebuild the app image and redeploy the stack:
+
+```bash
+$ docker buildx build --platform=linux/amd64 -f Dockerfile -t rafaelmontas/demo-app:prod .
+$ docker push rafaelmontas/demo-app:prod
+$ docker stack deploy -c docker-stack.yml demo-app
+```
+
+![Rails index page](/assets/images/docker-swarm-hetzner/new-index-page.png)
+
+I hope this post was helpful and that you were able to deploy your Rails app to a Docker Swarm cluster on Hetzner.
+If you have any questions or suggestions, feel free to reach out to me on [Twitter](https://twitter.com/rmontas).
 

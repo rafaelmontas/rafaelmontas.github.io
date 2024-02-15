@@ -257,7 +257,8 @@ volumes:
   db_data:
 ```
 
-> Make sure to replace the `SECRET_KEY_BASE` with the output of `rails secret`.
+> Make sure to replace the `SECRET_KEY_BASE` with the output of `rails secret`. Also, this is
+for demonstration purposes only, make sure not to expose sensitive information in your `docker-stack.yml` file.
 
 In `config/database.yml` we need to set the `host` to `database` as it is the name of the service in the stack. Also,
 we need to set the `username` and `password` to the ones we defined in the `docker-stack.yml` file:

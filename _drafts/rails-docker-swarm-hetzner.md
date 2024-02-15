@@ -14,7 +14,7 @@ as manager and the other for the database acting as worker.
 First, let's create a new Rails app and prepare the database:
 
 ```bash
-$ rails new docker-swarm -a propshaft -d postgresql -c tailwind
+$ rails new swarm-demo -a propshaft -d postgresql -c tailwind
 $ rails db:prepare
 ```
 
@@ -23,7 +23,7 @@ You should now be able to run the app locally with `bin/dev` and see the welcome
 ![Rails welcome page](/assets/images/docker-swarm-hetzner/rails-welcome.png)
 
 Just so we can test our database connection and data persistency in the swarm, let's scaffold
-a simple Post resource and set the index action as the root route. :
+a simple Post resource and set the index action as the root route:
 
 ```bash
 $ rails g scaffold Post title:string
@@ -31,12 +31,13 @@ $ rails db:migrate
 ```
 
 ```ruby
+# config/routes.rb
 root "posts#index"
 ```
 
 ## Provisioning the servers on Hetzner
 
-We can do this through the Hetzner Cloud Console but we will use the hcloud CLI.
+We could do this through the Hetzner Cloud Console but we will use the hcloud CLI.
 First, you need to [create an account](https://accounts.hetzner.com/login) on Hetzner, create
 a project, and [generate an API token](https://docs.hetzner.com/cloud/api/getting-started/generating-api-token/)
 (with read and write permissions). Then, install the [hcloud CLI](https://community.hetzner.com/tutorials/howto-hcloud-cli)
@@ -54,12 +55,14 @@ provisioning the two servers.
 In order for us to be able to SSH into the servers, we need to create an SSH key in our local machine
 and then assocaite it with Hetzner so we can use it when creating the servers:
 
+> For this example, I will create a new SSH key called `id_rsa_personal` without a passphrase.
+
 ```bash
 $ ssh-keygen -f ~/.ssh/id_rsa_personal
 $ hcloud ssh-key create --name personal-key --public-key-from-file ~/.ssh/id_rsa_personal.pub
 ```
 
-You can list the SSH keys to make sure it was added successfully:
+You can list the SSH keys associated with Hetzner to make sure it was added successfully:
 
 ```bash
 $ hcloud ssh-key list
@@ -171,10 +174,12 @@ $ docker swarm init --advertise-addr 37.27.34.249
   docker swarm join --token SWMTKN-1-2z9r0ypycjcxesjr7vlyf4nd248xp7h83dy7127miwoyydszct-a04m5zkf3f6hd3ueeoj513tby 37.27.34.249:2377
 ```
 
-Before joining the worker node to the cluster, let's assigna label to the manager node so we can control
-where the app container will be deployed:
+Before joining the worker node to the cluster, let's assign a label to the manager node so we can control
+where the app container will be deployed. First, list the nodes to get the manager node ID and then assign
+the label to the manager node:
 
 ```bash
+$ docker node ls
 $ docker node update --label-add type=app xyivupj1vs8j972fb789t3n08
 ```
 
@@ -188,15 +193,20 @@ $ docker swarm join --token SWMTKN-1-2z9r0ypycjcxesjr7vlyf4nd248xp7h83dy7127miwo
 > This node joined a swarm as a worker.
 ```
 
-Assign a label to the worker node as well by going back to the manager node, listing the nodes so we can
+Assign a label to the worker node as well by going back to the manager node, list the nodes so you can
 get the worker node ID and then assign the label to the worker node:
 
 ```bash
+$ ssh swarm-manager
 $ docker node ls
 $ docker node update --label-add type=database wqb9dnx6otanxoc529qfwblvq
 ```
 
 ## Deploying the Rails app to the cluster
+
+Since Rails 7.1, the `rails new` command generates a `Dockerfile`  tuned for production use with proper
+caching layers and multi-stage building. We will use this file to build the image that will
+be used by the web service in the stack.
 
 We will use a `docker-stack.yml` file to define the services and deploy the app to the cluster. Create the file
 in the root of the Rails app and add the following content:
@@ -206,7 +216,7 @@ version: '3.7'
 
 services:
   web:
-    image: rafaelmontas/demo-app:prod
+    image: <dockerhub_username>/swarm-demo:prod
     depends_on:
       - database
     ports:
@@ -217,7 +227,7 @@ services:
       - SECRET_KEY_BASE=b88d584663a98347075b76bf088a783f7c679e80f793519c2548674eaf0964d70db93b8167e44b1ecc767f02900a3aefb797bfe74c36943711153a408ef9554b
       - RAILS_SERVE_STATIC_FILES="true"
       - DATABASE_HOST=database
-      - POSTGRES_USER=docker_swarm
+      - POSTGRES_USER=swarm_demo
       - POSTGRES_PASSWORD=production-secure-password
     deploy:
       placement:
@@ -232,7 +242,7 @@ services:
       - SECRET_KEY_BASE=b88d584663a98347075b76bf088a783f7c679e80f793519c2548674eaf0964d70db93b8167e44b1ecc767f02900a3aefb797bfe74c36943711153a408ef9554b
       - RAILS_SERVE_STATIC_FILES="true"
       - DATABASE_HOST=database
-      - POSTGRES_USER=docker_swarm
+      - POSTGRES_USER=swarm_demo
       - POSTGRES_PASSWORD=production-secure-password
     volumes:
       - db_data:/var/lib/postgresql/data
@@ -247,40 +257,46 @@ volumes:
   db_data:
 ```
 
-> Starting from `Rails 7.1` ssl is enforced by default, so we need to set the
-`config.force_ssl = false` in the `config/environments/production.rb` file.
+> Make sure to replace the `SECRET_KEY_BASE` with the output of `rails secret`.
 
-Also, in `config/database.yml` we need to set the `host`, the `username`, and `password` to the
-values we set in the `docker-stack.yml` file.
+In `config/database.yml` we need to set the `host` to `database` as it is the name of the service in the stack. Also,
+we need to set the `username` and `password` to the ones we defined in the `docker-stack.yml` file:
 
 ```ruby
 production:
   <<: *default
-  database: docker_swarm_production
+  database: swarm_demo_production
   host: database
-  username: docker_swarm
+  username: swarm_demo
   password: <%= ENV["POSTGRES_PASSWORD"] %>
 ```
+
+> Starting from `Rails 7.1` ssl is enforced by default, so we need to set the
+`config.force_ssl = false` in the `config/environments/production.rb` file.
 
 ### Build x86 images on m1 mac:
 
 ```bash
-$ docker buildx build --platform=linux/amd64 -f Dockerfile -t rafaelmontas/demo-app:prod .
+$ docker buildx build --platform=linux/amd64 -f Dockerfile -t <dockerhub_username>/swarm-demo:prod .
 ```
 
 ### Upload image to registry:
 
 ```bash
-$ docker push rafaelmontas/demo-app:prod
+$ docker push <dockerhub_username>/swarm-demo:prod
 ```
 
 Now, we are ready to deploy the app to the cluster by creating a Docker Context for the manager node, switching to it, and then
 running the `docker stack deploy` command:
 
 ```bash
-$ docker context create demo-app --docker host=ssh://37.27.34.249
-$ docker context use demo-app
-$ docker stack deploy -c docker-stack.yml demo-app
+$ docker context create swarm-demo --docker host=ssh://37.27.34.249
+$ docker context use swarm-demo
+$ docker stack deploy -c docker-stack.yml swarm-demo
+
+> Creating network swarm-demo_default
+> Creating service swarm-demo_database
+> Creating service swarm-demo_web
 ```
 
 Now, you should be able to access the Rails app by visiting the IP address of the manager node in your browser:
@@ -288,12 +304,12 @@ Now, you should be able to access the Rails app by visiting the IP address of th
 ![Rails index page](/assets/images/docker-swarm-hetzner/index-page.png)
 
 To make shure the database is working, create a new post and verify that it persists after modifying the
-page's header. Then, rebuild the app image and redeploy the stack:
+page's header, rebuilding the image and redeploying the stack:
 
 ```bash
-$ docker buildx build --platform=linux/amd64 -f Dockerfile -t rafaelmontas/demo-app:prod .
-$ docker push rafaelmontas/demo-app:prod
-$ docker stack deploy -c docker-stack.yml demo-app
+$ docker buildx build --platform=linux/amd64 -f Dockerfile -t <dockerhub_username>/swarm-demo:prod .
+$ docker push <dockerhub_username>/swarm-demo:prod
+$ docker stack deploy -c docker-stack.yml swarm-demo
 ```
 
 ![Rails index page](/assets/images/docker-swarm-hetzner/new-index-page.png)

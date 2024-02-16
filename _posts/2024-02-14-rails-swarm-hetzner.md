@@ -8,7 +8,7 @@ image: /assets/images/docker-swarm-hetzner/swarm-hetzner.jpg
 ---
 
 In this post, I'll show you how to set up a Docker Swarm cluster on Hetzner and deploy
-a Rails app to it. We will be seting up two hosts, one for the web server acting
+a Rails app to it. We will be setting up two hosts, one for the web server acting
 as manager and the other for the database acting as worker.
 
 First, let's create a new Rails app and prepare the database:
@@ -53,7 +53,7 @@ You will be prompted to enter the API token and the context will be created. Now
 provisioning the two servers.
 
 In order for us to be able to SSH into the servers, we need to create an SSH key in our local machine
-and then assocaite it with Hetzner so we can use it when creating the servers:
+and then associate it with Hetzner so we can use it when creating the servers:
 
 > For this example, I will create a new SSH key called `id_rsa_personal` without a passphrase.
 

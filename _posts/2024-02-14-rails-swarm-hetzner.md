@@ -222,11 +222,6 @@ services:
     ports:
       - 80:3000
     environment:
-      - RAILS_ENV=production
-      - RAILS_LOG_TO_STDOUT="true"
-      - SECRET_KEY_BASE=b88d584663a98347075b76bf088a783f7c679e80f793519c2548674eaf0964d70db93b8167e44b1ecc767f02900a3aefb797bfe74c36943711153a408ef9554b
-      - RAILS_SERVE_STATIC_FILES="true"
-      - DATABASE_HOST=database
       - POSTGRES_USER=swarm_demo
       - POSTGRES_PASSWORD=production-secure-password
     deploy:
@@ -237,11 +232,6 @@ services:
   database:
     image: postgres:15
     environment:
-      - RAILS_ENV=production
-      - RAILS_LOG_TO_STDOUT="true"
-      - SECRET_KEY_BASE=b88d584663a98347075b76bf088a783f7c679e80f793519c2548674eaf0964d70db93b8167e44b1ecc767f02900a3aefb797bfe74c36943711153a408ef9554b
-      - RAILS_SERVE_STATIC_FILES="true"
-      - DATABASE_HOST=database
       - POSTGRES_USER=swarm_demo
       - POSTGRES_PASSWORD=production-secure-password
     volumes:
@@ -257,18 +247,17 @@ volumes:
   db_data:
 ```
 
-> Make sure to replace the `SECRET_KEY_BASE` with the output of `rails secret`. Also, this is
-for demonstration purposes only, make sure not to expose sensitive information in your `docker-stack.yml` file.
+> This is for demonstration purposes only, make sure not to expose sensitive information in your `docker-stack.yml` file.
 
 In `config/database.yml` we need to set the `host` to `database` as it is the name of the service in the stack. Also,
-we need to set the `username` and `password` to the ones we defined in the `docker-stack.yml` file:
+we need to set the `username` and `password` to the environment variables referenced in the `docker-stack.yml` file:
 
-```ruby
+```yml
 production:
   <<: *default
   database: swarm_demo_production
   host: database
-  username: swarm_demo
+  username: <%= ENV["POSTGRES_USER"] %>
   password: <%= ENV["POSTGRES_PASSWORD"] %>
 ```
 
@@ -291,7 +280,7 @@ Now, we are ready to deploy the app to the cluster by creating a Docker Context 
 running the `docker stack deploy` command:
 
 ```bash
-$ docker context create swarm-demo --docker host=ssh://37.27.34.249
+$ docker context create swarm-demo --docker host=ssh://swarm-manager
 $ docker context use swarm-demo
 $ docker stack deploy -c docker-stack.yml swarm-demo
 

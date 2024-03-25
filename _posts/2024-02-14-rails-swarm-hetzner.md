@@ -222,6 +222,7 @@ services:
     ports:
       - 80:3000
     environment:
+      - RAILS_MASTER_KEY=c51c56d33c031224c4678f44dd7eafa0
       - POSTGRES_USER=swarm_demo
       - POSTGRES_PASSWORD=production-secure-password
     deploy:
@@ -247,7 +248,8 @@ volumes:
   db_data:
 ```
 
-> This is for demonstration purposes only, make sure not to expose sensitive information in your `docker-stack.yml` file.
+> Make sure to replace `RAILS_MASTER_KEY` with the content of `config/master.key`. Also, this is for demonstration
+purposes only, make sure not to expose sensitive information in your `docker-stack.yml` file.
 
 In `config/database.yml` we need to set the `host` to `database` as it is the name of the service in the stack. Also,
 we need to set the `username` and `password` to the environment variables referenced in the `docker-stack.yml` file:

@@ -1,7 +1,7 @@
 ---
 layout: post
-title: "Automate app deployment to a Docker Swarm cluster with GitHub Actions - CI/CD"
-header: "Automate app deployment to a Docker Swarm cluster with GitHub Actions - CI/CD"
+title: "Automate app deployment with GitHub Actions and Docker Swarm - CI/CD"
+header: "Automate app deployment with GitHub Actions and Docker Swarm - CI/CD"
 slug: "automate-app-deployment-with-github-actions"
 excerpt: "Once you can deploy an app to a remote Docker Swarm cluster from your local machine, you might want automate the process so that your app gets deployed every time you push your code to your repository."
 image: /assets/images/docker-swarm-hetzner/swarm-hetzner.jpg
@@ -145,3 +145,14 @@ as a result of `ERB.new(File.read(".env.erb")).result` executing the embedded Ru
 Now that we can dynamically inject the secrets into the `.env` file, let's handle the CI/CD pipeline.
 
 ## GitHub Actions
+
+GitHub Actions is a continuous integration and continuous delivery (CI/CD) platform
+that allows you to automate your build, test, and deployment pipeline. GA uses the
+concept of a **Workflow** which is defined by a YAML file in the `.github/workflows` direcory.
+
+We are going to configure a GitHub Actions workflow to be triggered when we push our changes
+to the repository, running our Test suite and deploying the app to the VPS using
+Docker Swarm.
+
+First, let's create the `.github/workflows` directory and create a new file (workflow).
+Let's call it `deploy.yml`.

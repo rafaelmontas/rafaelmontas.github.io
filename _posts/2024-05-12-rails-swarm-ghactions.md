@@ -120,7 +120,7 @@ bw get notes <item-id>
 
 ### Hydrate `.env` file with Bitwarden secrets
 
-Wi will implement a rake task to fetch the secrets from Bitwarden and inject them into the `.env` file.
+We will implement a rake task to fetch the secrets from Bitwarden and inject them into the `.env` file.
 This is a similar but simplified version of what [Kamal](https://kamal-deploy.org/docs/configuration)
 does when you run `kamal envify`.
 
@@ -155,7 +155,7 @@ Now that we can dynamically inject the secrets into the `.env` file, let's handl
 
 GitHub Actions is a continuous integration and continuous delivery (CI/CD) platform
 that allows you to automate your build, test, and deployment pipeline. GA uses the
-concept of a **Workflow** which is defined by a YAML file in the `.github/workflows` direcory.
+concept of a **Workflow** which is defined by a YAML file in the `.github/workflows` directory.
 
 We are going to configure a GitHub Actions workflow to be triggered when we push our changes
 to the repository, deploying the app to the VPS using Docker Swarm.

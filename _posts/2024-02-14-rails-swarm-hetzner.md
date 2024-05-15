@@ -9,7 +9,16 @@ image: /assets/images/docker-swarm-hetzner/swarm-hetzner.jpg
 
 In this post, I'll show you how to set up a Docker Swarm cluster on Hetzner and deploy
 a Rails app to it. We will be setting up two hosts, one for the web server acting
-as manager and the other for the database acting as worker.
+as manager and another for the database acting as worker.
+
+In the video below, I walk through the steps specified in this post, but instead of
+using Hetzner through the CLI, I use the Hetzner Cloud Console to provision the servers
+and also I deploy the Rails app using Docker Swarm directly from the VPS instead of using
+the stack file.
+
+<div style="position: relative; padding-bottom: 56.25%; margin-bottom: 20px; height: 0;">
+<iframe style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" src="https://www.youtube.com/embed/mCz-eGTb6a0?si=LdOta8j8PVZWdv25" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+</div>
 
 First, let's create a new Rails app and prepare the database:
 
@@ -116,10 +125,10 @@ $ docker --version
 >> Docker version 25.0.1, build 29cf629
 ```
 
-## Adding firewalls to both servers
+## Adding a firewall to both servers
 
-Now, let's create our firewalls for the server and database. We will create the firewall for the web server
-first, add inbound rules, and then apply it to the server.
+Now, let's create our firewall for the servers. We will create the firewall, add inbound
+rules, and then apply it to both servers.
 
 ```bash
 # Create the firewall
@@ -136,29 +145,14 @@ $ hcloud firewall add-rule 1245331 --direction in --port 7946 --protocol tcp --s
 $ hcloud firewall add-rule 1245331 --direction in --port 4789 --protocol udp --source-ips 0.0.0.0/0
 ```
 
-For the database server, we will add the same rules but also allow traffic for the database port instead of
-the web server port:
+Notice that we don't have to open the database port as the database server will only be accessible
+from the web server and Docker Swarm will handle the communication between the services.
 
-```bash
-# Create the firewall
-$ hcloud firewall create --name db-firewall
-> Firewall 1247136 created
-
-# Add inbound rules
-$ hcloud firewall add-rule 1247136 --direction in --port 22 --protocol tcp --source-ips 0.0.0.0/0
-$ hcloud firewall add-rule 1247136 --direction in --port 5432 --protocol tcp --source-ips 0.0.0.0/0
-
-# Docker related ports for nodes communication and overlay networks
-$ hcloud firewall add-rule 1247136 --direction in --port 2377 --protocol tcp --source-ips 0.0.0.0/0
-$ hcloud firewall add-rule 1247136 --direction in --port 7946 --protocol tcp --source-ips 0.0.0.0/0
-$ hcloud firewall add-rule 1247136 --direction in --port 4789 --protocol udp --source-ips 0.0.0.0/0
-```
-
-Now we can apply the firewalls to the web server and database:
+Now we can apply the firewall to the servers by running the following commands:
 
 ```bash
 $ hcloud firewall apply-to-resource 1245331 --server 43107995 --type server
-$ hcloud firewall apply-to-resource 1247136 --server 43108038 --type server
+$ hcloud firewall apply-to-resource 1245331 --server 43108038 --type server
 ```
 
 ## Setting up the Docker Swarm cluster

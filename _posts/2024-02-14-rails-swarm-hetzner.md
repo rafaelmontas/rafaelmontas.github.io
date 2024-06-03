@@ -11,15 +11,6 @@ In this post, I'll show you how to set up a Docker Swarm cluster on Hetzner and 
 a Rails app to it. We will be setting up two hosts, one for the web server acting
 as manager and another for the database acting as worker.
 
-In the video below (in Spanish), I walk through the steps specified in this post, but instead of
-using Hetzner through the CLI, I use the Hetzner Cloud Console to provision the servers
-and also I deploy the Rails app using Docker Swarm directly from the VPS instead of using
-the stack file.
-
-<div style="position: relative; padding-bottom: 56.25%; margin-bottom: 20px; height: 0;">
-<iframe style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" src="https://www.youtube.com/embed/mCz-eGTb6a0?si=LdOta8j8PVZWdv25" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-</div>
-
 First, let's create a new Rails app and prepare the database:
 
 ```bash
